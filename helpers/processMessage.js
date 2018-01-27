@@ -11,7 +11,19 @@ const sendTextMessage = (senderId, text) => {
     method: 'POST', 
     json: { 
       recipient: {id: senderId}, 
-      message: {text}, 
+      message: {text,
+      quick_replies:[
+        {
+          content_type:"text",
+          title:"create a reminder",
+          payload:"create a reminder"
+        },
+        {
+          content_type:"text",
+          title:"show all reminders",
+          payload:"show all reminders"
+        }
+      ]}
     } 
   }); 
 };
@@ -22,6 +34,7 @@ module.exports = (event) => {
 
   const apiaiSession = apiAiClient.textRequest(message, {sessionId: 'crowbotics_bot'});
   apiaiSession.on('response', (response) => { 
+    console.log(response);
     const result = response.result.fulfillment.speech;
     sendTextMessage(senderId, result); 
   });
