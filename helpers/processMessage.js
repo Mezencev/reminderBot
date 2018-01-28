@@ -4,6 +4,8 @@ const apiAiClient = require('apiai')(API_AI_TOKEN);
 const FACEBOOK_ACCESS_TOKEN = process.env.FACEBOOK_TOKEN;
 const request = require('request');
 
+const reminders = [];
+
 
 const sendTextMessage = (senderId, text) => { 
   request({ 
@@ -23,7 +25,12 @@ exports.botMessage = (event) => {
 
   const apiaiSession = apiAiClient.textRequest(message, {sessionId: 'crowbotics_bot'});
   apiaiSession.on('response', (response) => { 
-    console.log(response);
+    //console.log(response.result.parameters);
+    console.log('intent=',response.result.metadata.intentName);
+    if (response.result.metadata.intentName === 'add reminder') {
+      reminders.push(response.result.resolvedQuery); 
+      console.log(reminders); 
+   }
     const result = response.result.fulfillment.speech;
     sendTextMessage(senderId, result); 
   });
@@ -37,13 +44,20 @@ exports.botPostback = (event) => {
 
   const apiaiSession = apiAiClient.textRequest(message, {sessionId: 'crowbotics_bot'});
   apiaiSession.on('response', (response) => { 
-    console.log(response);
+    console.log(response);   
+    
     const result = response.result.fulfillment.speech;
-    sendTextMessage(senderId, result); 
+    sendTextMessage(senderId, result);     
   });
   apiaiSession.on('error', error => console.log (error)); 
   apiaiSession.end(); 
 };
+
+
+
+
+
+
 /*quick_replies:[
   {
     content_type:"text",

@@ -7,11 +7,11 @@ module.exports = (req, res) => {
     req.body.entry.forEach(entry => { 
       entry.messaging.forEach(event => { 
         if (event.message && event.message.text) { 
-          console.log('event=', event);
+         // console.log('event=', event);
           processMessage.botMessage(event); 
         } else if (event.postback && event.postback.payload) {
-          console.log(event.postback.payload);
-          console.log(event);
+          //console.log(event.postback.payload);
+          //console.log(event);
           processMessage.botPostback(event);
         }
       }); 
