@@ -4,6 +4,7 @@ const apiAiClient = require('apiai')(API_AI_TOKEN);
 const FACEBOOK_ACCESS_TOKEN = process.env.FACEBOOK_TOKEN;
 const request = require('request');
 
+
 const sendTextMessage = (senderId, text) => { 
   request({ 
     url: 'https://graph.facebook.com/v2.6/me/messages', 
@@ -11,24 +12,12 @@ const sendTextMessage = (senderId, text) => {
     method: 'POST', 
     json: { 
       recipient: {id: senderId}, 
-      message: {text,
-      quick_replies:[
-        {
-          content_type:"text",
-          title:"create a reminder",
-          payload:"create a reminder"
-        },
-        {
-          content_type:"text",
-          title:"show all reminders",
-          payload:"show all reminders"
-        }
-      ]}
+      message: {text}
     } 
   }); 
 };
 
-module.exports = (event) => { 
+exports.botMessage = (event) => { 
   const senderId = event.sender.id; 
   const message = event.message.text;
 
@@ -41,3 +30,29 @@ module.exports = (event) => {
   apiaiSession.on('error', error => console.log (error)); 
   apiaiSession.end(); 
 };
+
+exports.botPostback = (event) => { 
+  const senderId = event.sender.id; 
+  const message = event.postback.payload;
+
+  const apiaiSession = apiAiClient.textRequest(message, {sessionId: 'crowbotics_bot'});
+  apiaiSession.on('response', (response) => { 
+    console.log(response);
+    const result = response.result.fulfillment.speech;
+    sendTextMessage(senderId, result); 
+  });
+  apiaiSession.on('error', error => console.log (error)); 
+  apiaiSession.end(); 
+};
+/*quick_replies:[
+  {
+    content_type:"text",
+    title:"create a reminder",
+    payload:"create a reminder"
+  },
+  {
+    content_type:"text",
+    title:"show all reminders",
+    payload:"show all reminders"
+  }
+]*/
