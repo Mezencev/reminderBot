@@ -1,8 +1,7 @@
 const processMessage = require ('../helpers/processMessage');
 
 module.exports = (req, res) => { 
- // console.log(req.body);
- // console.log(req.body.entry[0].messaging[0].postback);
+   // console.log('body=', req.body);
   if (req.body.object === 'page') { 
     req.body.entry.forEach(entry => { 
       entry.messaging.forEach(event => { 
@@ -10,7 +9,7 @@ module.exports = (req, res) => {
          // console.log('event=', event);
           processMessage.botMessage(event); 
         } else if (event.postback && event.postback.payload === 'snow') {
-          console.log(event);
+          //console.log(event);
           processMessage.reminderSnow(event);///////////////////////////////////
         } else if (event.postback && event.postback.payload) {
           //console.log(event.postback.payload);

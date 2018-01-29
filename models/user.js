@@ -1,20 +1,20 @@
-/*module.exports = function(sequelize, DataTypes) {
+module.exports = function(sequelize, DataTypes) {
     var User = sequelize.define('User', {
       id: {
-        type: DataTypes.STRING,
+        type: DataTypes.INTEGER,
         allowNull: false,
         unique: true,
+        primaryKey: true
       },
       reminders: {
-        type: DataTypes.STRING,
-        allowNull: false,
+        type: DataTypes.STRING
         
       },
-      data: {
-        data: DataTypes
+      date: {
+        type: DataTypes.DATE
       }
     });
     
     return User;
-  };*/
+  };
   

@@ -8,16 +8,17 @@ const schedule = require('node-schedule');
 const db = require('../models/index');
 
 const person = [];
-const time = [];
 
-const sendTextMessage = (senderId, result) => { 
+
+const sendTextMessage = (senderId, message) => { 
+  //console.log(message);
   request({ 
     url: 'https://graph.facebook.com/v2.6/me/messages', 
     qs: {access_token: FACEBOOK_ACCESS_TOKEN}, 
     method: 'POST', 
     json: { 
       recipient: {id: senderId}, 
-      message: {text: result}  
+      message: message  
       }        
   }) 
 };
@@ -25,20 +26,20 @@ const sendTextMessage = (senderId, result) => {
 exports.botMessage = (event) => { 
   const senderId = event.sender.id; 
   const message = event.message.text;
-  console.log('event=', event);
+  console.log(senderId);
   const apiaiSession = apiAiClient.textRequest(message, {sessionId: 'crowbotics_bot'});
   apiaiSession.on('response', (response) => { 
-    console.log('response=',response);
+    //console.log('response=',response);
     //console.log('intent=',response.result.metadata.intentName);
     if (response.result.metadata.intentName === 'add reminder') { 
       person.push(response.result.resolvedQuery); 
-      time.push(response.result.parameters);
-      console.log(response.result.parameters.date);
-      console.log(time);
+      console.log(response.result.parameters);
+      console.log(response.result.resolvedQuery);
    }
-    const result = response.result.fulfillment.speech;
-    console.log('result=', result);
-    sendTextMessage(senderId, result); 
+    const result = response.result.fulfillment.speech; 
+    //console.log('result=', result);
+    const message = {text: result};
+    sendTextMessage(senderId, message); 
   });
   apiaiSession.on('error', error => console.log (error)); 
   apiaiSession.end(); 
@@ -50,10 +51,11 @@ exports.botPostback = (event) => {
 
   const apiaiSession = apiAiClient.textRequest(message, {sessionId: 'crowbotics_bot'});
   apiaiSession.on('response', (response) => { 
-    console.log(response);   
+   // console.log(response);   
     
     const result = response.result.fulfillment.speech;
-    sendTextMessage(senderId, result);     
+    const message = {text: result};
+    sendTextMessage(senderId, message);     
   });
   apiaiSession.on('error', error => console.log (error)); 
   apiaiSession.end(); 
@@ -62,19 +64,20 @@ exports.botPostback = (event) => {
 exports.reminderSnow = (event) => {
   const sender = event.sender.id;
   const result = `You have the reminder ${person}`;
-  sendTextMessage(sender, result);
+  const message = {text: result}
+  sendTextMessage(sender, message);
 };
   
 
 var data = { date: '2018-01-29', time: '15:00:00' };
-var data1 = new Date(2018, 00, 29, 18, 07, 00);
+var data1 = new Date(2018, 00, 29, 20, 40, 00);
 
-var x = 'Tada!';
-var j = schedule.scheduleJob(data1, function(event){
+
+schedule.scheduleJob(data1, function(){
   console.log(data);
   console.log(x);
-  const senderId = 1719652861419819;
-  const result = {
+  const sender = 1719652861419819;
+  const message =  {
     attachment: {
         type: "template",
         payload: {
@@ -94,35 +97,11 @@ var j = schedule.scheduleJob(data1, function(event){
                 }
               ]
             }]
-           }
-         }
-       }
-       sendTextMessage(senderId, result); 
-      }     
-    );
+        }
+    }
+  } 
+  sendTextMessage(sender, message);
+});
 
 
 
-/*{
-  attachment: {
-      type: "template",
-      payload: {
-          template_type: "generic",
-          elements: [{
-              title: "You have a reminder",
-              subtitle: "*************",
-              buttons: [
-                {
-                  type: "postback",
-                  payload: 'accept',
-                  title: 'ACCEPT'
-              },{
-                  type: 'postback',
-                  payload: 'snooze',
-                  title: 'SNOOZE' 
-              }
-            ]
-          }]
-      }
-  }
-}*/
