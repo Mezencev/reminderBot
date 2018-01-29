@@ -9,8 +9,9 @@ module.exports = (req, res) => {
         if (event.message && event.message.text) { 
          // console.log('event=', event);
           processMessage.botMessage(event); 
-        } else if (event.postback.payload === 'snow') {
+        } else if (event.postback && event.postback.payload === 'snow') {
           console.log(event);
+          processMessage.reminderSnow(event);///////////////////////////////////
         } else if (event.postback && event.postback.payload) {
           //console.log(event.postback.payload);
           //console.log(event);
