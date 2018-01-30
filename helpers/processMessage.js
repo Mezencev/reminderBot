@@ -5,10 +5,9 @@ const FACEBOOK_ACCESS_TOKEN = process.env.FACEBOOK_TOKEN;
 const request = require('request');
 const schedule = require('node-schedule');
 
-const db = require('../models/index');
-
+const {user} = require('../models');
 const person = [];
-
+const {reminder} = require('../models');
 
 const sendTextMessage = (senderId, message) => { 
   //console.log(message);
@@ -27,14 +26,22 @@ exports.botMessage = (event) => {
   const senderId = event.sender.id; 
   const message = event.message.text;
   console.log(senderId);
+  reminder.create({
+    name: senderId
+  })
   const apiaiSession = apiAiClient.textRequest(message, {sessionId: 'crowbotics_bot'});
   apiaiSession.on('response', (response) => { 
     //console.log('response=',response);
     //console.log('intent=',response.result.metadata.intentName);
     if (response.result.metadata.intentName === 'add reminder') { 
       person.push(response.result.resolvedQuery); 
-      console.log(response.result.parameters);
-      console.log(response.result.resolvedQuery);
+      const time = response.result.parameters.date;
+      const time2 = response.result.parameters.time;
+      const time3 =Date.parse(`${time}  ${time2}`);
+      reminder.create({
+        content: response.result.resolvedQuery,
+        data: time3
+      })
    }
     const result = response.result.fulfillment.speech; 
     //console.log('result=', result);
@@ -63,19 +70,24 @@ exports.botPostback = (event) => {
 
 exports.reminderSnow = (event) => {
   const sender = event.sender.id;
-  const result = `You have the reminder ${person}`;
+  const result = `You have the reminder:   ${person}`;
   const message = {text: result}
   sendTextMessage(sender, message);
 };
-  
 
-var data = { date: '2018-01-29', time: '15:00:00' };
-var data1 = new Date(2018, 00, 29, 20, 40, 00);
+
+/*var time2 = { date: '2018-01-29', time: '15:00:00' };
+var time3 = time2.date; 
+var time4 = time2.time;
+var time5 = (`${time3}  ${time4}`);
+
+
+console.log(Date.parse(time5));*/
+
+var data1 = 45645645;
 
 
 schedule.scheduleJob(data1, function(){
-  console.log(data);
-  console.log(x);
   const sender = 1719652861419819;
   const message =  {
     attachment: {
@@ -84,7 +96,7 @@ schedule.scheduleJob(data1, function(){
             template_type: "generic",
             elements: [{
                 title: "You have a reminder",
-                subtitle: "*************",
+                subtitle: `${person}`,
                 buttons: [
                   {
                     type: "postback",

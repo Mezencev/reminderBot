@@ -1,20 +1,17 @@
-module.exports = function(sequelize, DataTypes) {
-    var User = sequelize.define('User', {
-      id: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
-        unique: true,
-        primaryKey: true
-      },
-      reminders: {
-        type: DataTypes.STRING
-        
-      },
-      date: {
-        type: DataTypes.DATE
-      }
+module.exports = (sequelize, DataTypes) => {
+  const user = sequelize.define('user', {
+    title: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+  });
+
+  user.associate = (models) => {
+    user.hasMany(models.reminder, {
+      foreignKey: 'todoId',
+      as: 'reminders',
     });
-    
-    return User;
   };
-  
+
+  return user;
+};
