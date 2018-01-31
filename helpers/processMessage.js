@@ -26,9 +26,7 @@ exports.botMessage = (event) => {
   const senderId = event.sender.id; 
   const message = event.message.text;
   console.log(senderId);
-  reminder.create({
-    name: senderId
-  })
+
   const apiaiSession = apiAiClient.textRequest(message, {sessionId: 'crowbotics_bot'});
   apiaiSession.on('response', (response) => { 
     //console.log('response=',response);
@@ -40,7 +38,8 @@ exports.botMessage = (event) => {
       const time3 =Date.parse(`${time}  ${time2}`);
       reminder.create({
         content: response.result.resolvedQuery,
-        data: time3
+        data: time3,
+        name: senderId
       })
    }
     const result = response.result.fulfillment.speech; 
@@ -84,13 +83,17 @@ var time5 = (`${time3}  ${time4}`);
 
 console.log(Date.parse(time5));*/
 
-var data1 = 45645645;
+const data = Date.now();
+console.log(data);
+const data1 = 1517332600000;
 
 
-schedule.scheduleJob(data1, function(){
-  const sender = 1719652861419819;
-  const message =  {
-    attachment: {
+schedule.scheduleJob('10 * * * * *', function(){
+  
+  if (Date.now() === data1) {
+    const sender = 1719652861419819;
+    const message =  {
+      attachment: {
         type: "template",
         payload: {
             template_type: "generic",
@@ -110,10 +113,24 @@ schedule.scheduleJob(data1, function(){
               ]
             }]
         }
-    }
-  } 
-  sendTextMessage(sender, message);
+      }
+    } 
+    sendTextMessage(sender, message);
+ }
 });
 
+/*var j = schedule.scheduleJob(date, function(){
+  // Send push notification
+});
 
+// later on
+var job_method = j.job;
+j.cancel();
+var new_job = schedule.scheduleJob(date, job_method);*/
+reminder.findAll().then((reminders) => {
+  Array.isArray(reminders);
+  const line1 = reminders[0];
+  console.log(line1.dataValues.data);
+  const data1 = line1.dataValues.data;
+});
 

@@ -1,7 +1,7 @@
 module.exports = (sequelize, DataTypes) => {
   const reminder = sequelize.define('reminder', {
     name: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.STRING,
     },
     content: {
       type: DataTypes.STRING,
@@ -16,12 +16,12 @@ module.exports = (sequelize, DataTypes) => {
     }
   });
 
-  reminder.associate = (models) => {
+  /*reminder.associate = (models) => {
     reminder.belongsTo(models.user, {
       foreignKey: 'todoId',
       onDelete: 'CASCADE',
     });
-  };
+  };*/
 
   return reminder;
 };

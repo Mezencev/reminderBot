@@ -6,12 +6,12 @@ module.exports = (sequelize, DataTypes) => {
     },
   });
 
-  user.associate = (models) => {
+ /* user.associate = (models) => {
     user.hasMany(models.reminder, {
       foreignKey: 'todoId',
       as: 'reminders',
     });
-  };
+  };*/
 
   return user;
 };
