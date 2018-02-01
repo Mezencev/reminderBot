@@ -61,17 +61,22 @@ exports.botPostback = (event) => {
     const name = arr[1];
     console.log(name);
     reminder.destroy({ where: {id: name}}).then((reminders) => {
-      const result = 'Your reminder is delayed.';
+      const result = 'job done.';
       const message = {text: result};
       console.log('welcome');
       sendTextMessage(senderId, message);
       })
-  } else if (arr === 'snooze') {
+  } else if (accept === 'snooze') {
+      const name = arr[1];
       console.log('good bay')
-      reminder.find({ where: {id: 2}}).then((reminders) => { 
+      reminder.find({ where: {id: name}}).then((reminders) => { 
         if(reminders) {
-          reminders.updateAttributes({data: Date.now()}).then((reminders) => {
-            const result = 'job done.';
+          const dateTime = new Date();
+          const dataMoment = moment(dateTime).format("YYYY-MM-DD HH:mm");
+          const dataPars = Date.parse(dataMoment);
+          const dataDelayd = dataPars + 1800000;
+          reminders.updateAttributes({data: dataDelayd }).then((reminders) => {
+            const result = 'Your reminder is delayed..';
             const message = {text: result};
             sendTextMessage(senderId, message);
           })
@@ -91,12 +96,12 @@ exports.botPostback = (event) => {
   }
 }  
 
-exports.reminderSnow = (event) => {
+/*exports.reminderSnow = (event) => {
   const sender = event.sender.id;
   const result = `You have the reminder:   ${person}`;
   const message = {text: result}
   sendTextMessage(sender, message);
-};
+};*/
 
 schedule.scheduleJob('*/1 * * * *', function(){
   console.log('shedule');
@@ -104,15 +109,14 @@ schedule.scheduleJob('*/1 * * * *', function(){
   const ttt = moment(dateTime).format("YYYY-MM-DD HH:mm");
   console.log(ttt);
   
-  const data1 = '2018-02-01 00:45:16.592+02'; 
-  reminder.find({where: { data: data1 } }).then((reminders) => {
-    const line1 = reminders[0];
-    console.log(reminders);
-    console.log('////////////////',line1.dataValues.data); //2018-02-01T05:51:49.260Z*/
-    const id = line1.dataValues.id;
-    const sender = line1.dataValues.name;
-    const content = line1.dataValues.content
-    const message =  {
+  const data1 = '2018-02-01 10:44:04.852+02 '; 
+  reminder.findAll({where: { data: ttt } }).then((reminders) => {
+    if (reminders) {
+      const line1 = reminders[0];
+      const id = line1.dataValues.id;
+      const sender = line1.dataValues.name;
+      const content = line1.dataValues.content
+      const message =  {
         attachment: {
           type: "template",
           payload: {
@@ -137,7 +141,21 @@ schedule.scheduleJob('*/1 * * * *', function(){
       } 
       sendTextMessage(sender, message);
     }
-   )
+  })
 });
-
+exports.reminderSnow = (event) => {
+  const sender = event.sender.id;
+  reminder.findAll({ where: { name: sender}}).then((reminders) => {
+    if(reminders) {
+    //  console.log('remidresSnow=', reminders);
+      const AllReminders = reminders.map( i => {
+        const YouReminders = i.dataValues.content;
+        console.log(YouReminders)//('this is i =', i.dataValues.content)
+      })
+    }
+    const result = `You have the reminder:   ${person}`;
+    const message = {text: result}
+    sendTextMessage(sender, message);
+  })  
+};
 
