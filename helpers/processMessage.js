@@ -10,7 +10,7 @@ const person = [];
 const {reminder} = require('../models');
 
 const sendTextMessage = (senderId, message) => { 
-  //console.log(message);
+  console.log(message);
   request({ 
     url: 'https://graph.facebook.com/v2.6/me/messages', 
     qs: {access_token: FACEBOOK_ACCESS_TOKEN}, 
@@ -29,13 +29,11 @@ exports.botMessage = (event) => {
 
   const apiaiSession = apiAiClient.textRequest(message, {sessionId: 'crowbotics_bot'});
   apiaiSession.on('response', (response) => { 
-    //console.log('response=',response);
-    //console.log('intent=',response.result.metadata.intentName);
     if (response.result.metadata.intentName === 'add reminder') { 
       person.push(response.result.resolvedQuery); 
       const time = response.result.parameters.date;
       const time2 = response.result.parameters.time;
-      const time3 =Date.parse(`${time}  ${time2}`);
+      const time3 = Date.parse(`${time}  ${time2}`);
       reminder.create({
         content: response.result.resolvedQuery,
         data: time3,
@@ -43,7 +41,6 @@ exports.botMessage = (event) => {
       })
    }
     const result = response.result.fulfillment.speech; 
-    //console.log('result=', result);
     const message = {text: result};
     sendTextMessage(senderId, message); 
   });
@@ -54,18 +51,42 @@ exports.botMessage = (event) => {
 exports.botPostback = (event) => { 
   const senderId = event.sender.id; 
   const message = event.postback.payload;
-
-  const apiaiSession = apiAiClient.textRequest(message, {sessionId: 'crowbotics_bot'});
-  apiaiSession.on('response', (response) => { 
-   // console.log(response);   
-    
-    const result = response.result.fulfillment.speech;
-    const message = {text: result};
-    sendTextMessage(senderId, message);     
-  });
-  apiaiSession.on('error', error => console.log (error)); 
-  apiaiSession.end(); 
-};
+  console.log(message);
+  const arr = message.substr(0, 6);
+  console.log(arr);
+  if (arr === 'accept') {
+    console.log(senderId);
+                                                           //   const name = id;
+    reminder.destroy({ where: {id: 1}}).then((reminders) => {
+      const result = 'Your reminder is delayed.';
+      const message = {text: result};
+      console.log('welcome');
+      sendTextMessage(senderId, message);
+      })
+  } else if (arr === 'snooze') {
+      console.log('good bay')
+      reminder.find({ where: {id: 2}}).then((reminders) => { 
+        if(reminders) {
+          reminders.updateAttributes({data: Date.now()}).then((reminders) => {
+            const result = 'job done.';
+            const message = {text: result};
+            sendTextMessage(senderId, message);
+          })
+        }
+      })
+  } else {
+    console.log('create my reminder');
+    const apiaiSession = apiAiClient.textRequest(message, {sessionId: 'crowbotics_bot'});
+    apiaiSession.on('response', (response) => { 
+      console.log('response= ', response);  
+      const result = response.result.fulfillment.speech;
+      const message = {text: result};
+      sendTextMessage(senderId, message);     
+    })
+    apiaiSession.on('error', error => console.log (error)); 
+    apiaiSession.end(); 
+  }
+}  
 
 exports.reminderSnow = (event) => {
   const sender = event.sender.id;
@@ -74,63 +95,41 @@ exports.reminderSnow = (event) => {
   sendTextMessage(sender, message);
 };
 
-
-/*var time2 = { date: '2018-01-29', time: '15:00:00' };
-var time3 = time2.date; 
-var time4 = time2.time;
-var time5 = (`${time3}  ${time4}`);
-
-
-console.log(Date.parse(time5));*/
-
-const data = Date.now();
-console.log(data);
-const data1 = 1517332600000;
-
-
 schedule.scheduleJob('10 * * * * *', function(){
-  
-  if (Date.now() === data1) {
-    const sender = 1719652861419819;
+  const data1 = ' 2018-01-31 14:00:00+02';
+  reminder.findAll({where: { data: data1 } }).then((reminders) => {
+    const line1 = reminders[0];
+    console.log(reminders);
+    console.log('////////////////',line1.dataValues.data);
+    const id = line1.dataValues.id;
+    const sender = line1.dataValues.name;
+    const content = line1.dataValues.content
     const message =  {
-      attachment: {
-        type: "template",
-        payload: {
+        attachment: {
+          type: "template",
+          payload: {
             template_type: "generic",
             elements: [{
                 title: "You have a reminder",
-                subtitle: `${person}`,
+                subtitle: `${content}`,
                 buttons: [
                   {
                     type: "postback",
-                    payload: 'accept',
+                    payload: `accept_${id}`,
                     title: 'ACCEPT'
                 },{
                     type: 'postback',
-                    payload: 'snooze',
+                    payload: `snooze_${id}`,
                     title: 'SNOOZE' 
                 }
               ]
             }]
+          }
         }
-      }
-    } 
-    sendTextMessage(sender, message);
- }
+      } 
+      sendTextMessage(sender, message);
+    }
+   )
 });
 
-/*var j = schedule.scheduleJob(date, function(){
-  // Send push notification
-});
-
-// later on
-var job_method = j.job;
-j.cancel();
-var new_job = schedule.scheduleJob(date, job_method);*/
-reminder.findAll().then((reminders) => {
-  Array.isArray(reminders);
-  const line1 = reminders[0];
-  console.log(line1.dataValues.data);
-  const data1 = line1.dataValues.data;
-});
 
