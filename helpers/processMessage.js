@@ -151,11 +151,11 @@ exports.reminderSnow = (event) => {
       const AllReminders = reminders.map( i => {
         const YouReminders = i.dataValues.content;
         console.log(YouReminders)//('this is i =', i.dataValues.content)
+        const result = `You have the reminder:   ${YouReminders}`;
+        const message = {text: result}
+        sendTextMessage(sender, message);
       })
     }
-    const result = `You have the reminder:   ${person}`;
-    const message = {text: result}
-    sendTextMessage(sender, message);
   })  
 };
 
