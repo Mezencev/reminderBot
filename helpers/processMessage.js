@@ -4,6 +4,7 @@ const apiAiClient = require('apiai')(API_AI_TOKEN);
 const FACEBOOK_ACCESS_TOKEN = process.env.FACEBOOK_TOKEN;
 const request = require('request');
 const schedule = require('node-schedule');
+const moment = require('moment');
 
 const {user} = require('../models');
 const person = [];
@@ -34,6 +35,7 @@ exports.botMessage = (event) => {
       const time = response.result.parameters.date;
       const time2 = response.result.parameters.time;
       const time3 = Date.parse(`${time}  ${time2}`);
+      console.log('time=', time, 'time2=', time2, 'time3=',time3);
       reminder.create({
         content: response.result.resolvedQuery,
         data: time3,
@@ -52,12 +54,13 @@ exports.botPostback = (event) => {
   const senderId = event.sender.id; 
   const message = event.postback.payload;
   console.log(message);
-  const arr = message.substr(0, 6);
-  console.log(arr);
-  if (arr === 'accept') {
+  const arr = message.split('_');
+  const accept = arr[0];
+  if (accept === 'accept') {
     console.log(senderId);
-                                                           //   const name = id;
-    reminder.destroy({ where: {id: 1}}).then((reminders) => {
+    const name = arr[1];
+    console.log(name);
+    reminder.destroy({ where: {id: name}}).then((reminders) => {
       const result = 'Your reminder is delayed.';
       const message = {text: result};
       console.log('welcome');
@@ -95,12 +98,17 @@ exports.reminderSnow = (event) => {
   sendTextMessage(sender, message);
 };
 
-schedule.scheduleJob('10 * * * * *', function(){
-  const data1 = ' 2018-01-31 14:00:00+02';
-  reminder.findAll({where: { data: data1 } }).then((reminders) => {
+schedule.scheduleJob('*/1 * * * *', function(){
+  console.log('shedule');
+  const dateTime = new Date();
+  const ttt = moment(dateTime).format("YYYY-MM-DD HH:mm");
+  console.log(ttt);
+  
+  const data1 = '2018-02-01 00:45:16.592+02'; 
+  reminder.find({where: { data: data1 } }).then((reminders) => {
     const line1 = reminders[0];
     console.log(reminders);
-    console.log('////////////////',line1.dataValues.data);
+    console.log('////////////////',line1.dataValues.data); //2018-02-01T05:51:49.260Z*/
     const id = line1.dataValues.id;
     const sender = line1.dataValues.name;
     const content = line1.dataValues.content
