@@ -7,7 +7,7 @@ module.exports = (req, res) => {
         if (event.message && event.message.text) { 
           processMessage.botMessage(event); 
         } else if (event.postback && event.postback.payload === 'snow') {
-          processMessage.reminderSnow(event);///////////////////////////////////
+          processMessage.reminderSnow(event);
         } else if (event.postback && event.postback.payload) {
           processMessage.botPostback(event); 
         }
@@ -16,6 +16,3 @@ module.exports = (req, res) => {
     res.status(200).end (); 
   } 
 };
-
-
-  

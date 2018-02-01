@@ -5,13 +5,5 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
     },
   });
-
- /* user.associate = (models) => {
-    user.hasMany(models.reminder, {
-      foreignKey: 'todoId',
-      as: 'reminders',
-    });
-  };*/
-
   return user;
 };

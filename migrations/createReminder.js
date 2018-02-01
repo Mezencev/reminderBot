@@ -12,7 +12,6 @@ module.exports = {
         },
         content: {
           type: Sequelize.STRING,
-        //  allowNull: false,
         },
         complete: {
           type: Sequelize.BOOLEAN,
@@ -29,17 +28,7 @@ module.exports = {
           allowNull: false,
           type: Sequelize.DATE,
         }
-        
-        /*todoId: {
-          type: Sequelize.INTEGER,
-          onDelete: 'CASCADE',
-          references: {
-            model: 'user',
-            key: 'id',
-            as: 'todoId',
-          },
-        },*/
       }),
     down: (queryInterface ) =>
       queryInterface.dropTable('reminders'),
-  };
+};

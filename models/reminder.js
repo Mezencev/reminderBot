@@ -15,13 +15,5 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.DATE,
     }
   });
-
-  /*reminder.associate = (models) => {
-    reminder.belongsTo(models.user, {
-      foreignKey: 'todoId',
-      onDelete: 'CASCADE',
-    });
-  };*/
-
   return reminder;
 };
