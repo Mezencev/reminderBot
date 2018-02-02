@@ -144,12 +144,12 @@ exports.reminderDelete = (event) => {
     quick_replies: [
       {
         content_type: 'text',
-        title: '_Yes',
+        title: 'Yes, I am sure.',
         payload: '<POSTBACK_PAYLOAD>',
       },
       {
         content_type: 'text',
-        title: '_No',
+        title: 'No',
         payload: '<POSTBACK_PAYLOAD>',
       },
     ],

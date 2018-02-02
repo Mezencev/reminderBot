@@ -6,7 +6,7 @@ module.exports = (req, res) => {
       entry.messaging.forEach((event) => {
         if (event.message && event.message.text.toLowerCase() === 'delete') {
           processMessage.reminderDelete(event);
-        } else if (event.message && event.message.text === '_Yes') {
+        } else if (event.message && event.message.text === 'Yes, I am sure.') {
           processMessage.deleteAll(event);
         } else if (event.message && event.message.text) {
           processMessage.botMessage(event);
