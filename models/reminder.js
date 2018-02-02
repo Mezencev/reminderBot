@@ -13,7 +13,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     data: {
       type: DataTypes.DATE,
-    }
+    },
   });
   return reminder;
 };
+

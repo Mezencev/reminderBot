@@ -1,18 +1,18 @@
-const processMessage = require ('../helpers/processMessage');
+const processMessage = require('../helpers/processMessage');
 
-module.exports = (req, res) => { 
-  if (req.body.object === 'page') { 
-    req.body.entry.forEach(entry => { 
-      entry.messaging.forEach(event => { 
-        if (event.message && event.message.text) { 
-          processMessage.botMessage(event); 
+module.exports = (req, res) => {
+  if (req.body.object === 'page') {
+    req.body.entry.forEach((entry) => {
+      entry.messaging.forEach((event) => {
+        if (event.message && event.message.text) {
+          processMessage.botMessage(event);
         } else if (event.postback && event.postback.payload === 'snow') {
           processMessage.reminderSnow(event);
         } else if (event.postback && event.postback.payload) {
-          processMessage.botPostback(event); 
+          processMessage.botPostback(event);
         }
-      }); 
+      });
     });
-    res.status(200).end (); 
-  } 
+    res.status(200).end();
+  }
 };
