@@ -17,8 +17,8 @@ const sendTextMessage = (senderId, message) => {
     json: {
       recipient: { id: senderId },
       message: message 
-    }       
-  })
+    }     
+  });
 };
 
 exports.botMessage = (event) => {
@@ -35,8 +35,8 @@ exports.botMessage = (event) => {
         content: response.result.resolvedQuery,
         data: time3,
         name: senderId,
-      })
-   }
+      });
+    }
     const result = response.result.fulfillment.speech;
     const message = { text: result };
     sendTextMessage(senderId, message);
@@ -56,7 +56,7 @@ exports.botPostback = (event) => {
       const result = 'job done.';
       const message = { text: result };
       sendTextMessage(senderId, message);
-    })
+    });
   } else if (accept === 'snooze') {
     const name = arr[1];
     reminder.find({ where: { id: name } }).then((reminders) => {
@@ -86,26 +86,29 @@ exports.botPostback = (event) => {
 exports.reminderSnow = (event) => {
   const sender = event.sender.id;
   reminder.findAll({ where: { name: sender } }).then((reminders) => {
-    if (reminders) {
+    if (reminders.length >= 1) {
+      console.log(reminders.length);
       reminders.map((i) => {
         const YouReminders = i.dataValues.content;
         const result = `You have the reminder:   ${YouReminders}`;
         const message = { text: result };
         sendTextMessage(sender, message);
       });
+    } else {
+      const message = { text: 'You have not reminders.' };
+      sendTextMessage(sender, message);
     }
-  })
+  });
 };
-
 schedule.scheduleJob('*/1 * * * *', () => {
   const dateTime = new Date();
-  const formatData = moment(dateTime).format('YYYY-MM-DD HH:mm');  
+  const formatData = moment(dateTime).format('YYYY-MM-DD HH:mm'); 
   reminder.findAll({ where: { data: formatData } }).then((reminders) => {
     if (reminders[0]) {
       const line1 = reminders[0];
       const id = line1.dataValues.id;
       const sender = line1.dataValues.name;
-      const content = line1.dataValues.content
+      const content = line1.dataValues.content;
       const message = {
         attachment: {
           type: 'template',
@@ -133,3 +136,30 @@ schedule.scheduleJob('*/1 * * * *', () => {
     }
   });
 });
+
+exports.reminderDelete = (event) => {
+  const sender = event.sender.id;
+  const message = {
+    text: 'Are you sure you want to delete your reminders?',
+    quick_replies: [
+      {
+        content_type: 'text',
+        title: '_Yes',
+        payload: '<POSTBACK_PAYLOAD>',
+      },
+      {
+        content_type: 'text',
+        title: '_No',
+        payload: '<POSTBACK_PAYLOAD>',
+      },
+    ],
+  };
+  sendTextMessage(sender, message);
+};
+exports.deleteAll = (event) => {
+  const sender = event.sender.id;
+  reminder.destroy({ where: { name: sender } }).then((reminders) => {
+    const message = { text: 'You have not reminders.' };
+    sendTextMessage(sender, message);
+  });
+};

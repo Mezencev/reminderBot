@@ -4,7 +4,11 @@ module.exports = (req, res) => {
   if (req.body.object === 'page') {
     req.body.entry.forEach((entry) => {
       entry.messaging.forEach((event) => {
-        if (event.message && event.message.text) {
+        if (event.message && event.message.text.toLowerCase() === 'delete') {
+          processMessage.reminderDelete(event);
+        } else if (event.message && event.message.text === '_Yes') {
+          processMessage.deleteAll(event);
+        } else if (event.message && event.message.text) {
           processMessage.botMessage(event);
         } else if (event.postback && event.postback.payload === 'snow') {
           processMessage.reminderSnow(event);
