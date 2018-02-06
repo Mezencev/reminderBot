@@ -6,12 +6,14 @@ module.exports = (req, res) => {
       entry.messaging.forEach((event) => {
         if (event.message && event.message.text.toLowerCase() === 'delete') {
           processMessage.reminderDelete(event);
-        } else if (event.message && event.message.text === 'Yes, I am sure.') {
+        } else if (event.message && event.message.quick_reply && event.message.quick_reply.payload === 'delete') {
           processMessage.deleteAll(event);
         } else if (event.message && event.message.text) {
           processMessage.botMessage(event);
-        } else if (event.postback && event.postback.payload === 'snow') {
+        } else if (event.postback && event.postback.payload === 'show') {
           processMessage.reminderSnow(event);
+        } else if (event.postback && event.postback.payload === 'delete') {
+          processMessage.reminderDelete(event);
         } else if (event.postback && event.postback.payload) {
           processMessage.botPostback(event);
         }

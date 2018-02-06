@@ -1,9 +1,9 @@
 module.exports = (sequelize, DataTypes) => {
   const reminder = sequelize.define('reminder', {
-    name: {
+    facebookId: {
       type: DataTypes.STRING,
     },
-    content: {
+    reminder: {
       type: DataTypes.STRING,
       allowNull: true,
     },
@@ -11,7 +11,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
-    data: {
+    date: {
       type: DataTypes.DATE,
     },
   });
