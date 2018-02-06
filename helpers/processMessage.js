@@ -105,12 +105,11 @@ exports.reminderSnow = (event) => {
 schedule.scheduleJob('*/1 * * * *', () => {
   //const dateTime = new Date();
  // const formatData = moment(dateTime).format('YYYY-MM-DD HH:mm'); 
-  reminder.findAll({ where: { date: { [op.gte]: new Date() } } }).then((result) => {  //lte  g
+  reminder.findAll({ where: { date: { [op.gte]: new Date() } } }).then((result) => {  
     if (result[0]) {
       console.log('///////////////');
       console.log(result);
       result.map((i) => {
-    //    const line1 = result[0];
         const id = i.dataValues.id;
         const senderId = i.dataValues.facebookId;
         const reminder = i.dataValues.reminder;
@@ -145,10 +144,16 @@ schedule.scheduleJob('*/1 * * * *', () => {
 
 exports.reminderDelete = (event) => {
   const senderId = event.sender.id;
-  console.log(event);
-  const result = {
-      text : 'Are you sure you want to delete ',
-    quick_replies: [
+  reminder.findAll({ where: { facebookId: senderId } }).then((result) => {
+    if (result.length === 0) {
+      const message = { text: 'You have not reminders.' };
+      sendTextMessage(senderId, message);
+    } else {
+      result.map((i) => {
+        const youReminders = i.dataValues.reminder;
+      const result = {
+      text: `Are you sure you want to delete ${youReminders}` ,
+      quick_replies: [
       {
         content_type: 'text',
         title: 'Yes.',
@@ -158,12 +163,12 @@ exports.reminderDelete = (event) => {
         content_type: 'text',
         title: 'No',
         payload: 'no',
-      },
-    ],
-  };
-  const message = { text: result };
-  sendTextMessage(senderId, result);
-};
+       },
+     ],
+   };
+    sendTextMessage(senderId, result);
+    })}
+})};
 exports.deleteAll = (event) => {
   const senderId = event.sender.id;
   reminder.destroy({ where: { facebookId: senderId } }).then(() => {
