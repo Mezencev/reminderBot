@@ -13,7 +13,7 @@ module.exports = (req, res) => {
         } else if (event.postback && event.postback.payload === 'show') {
           processMessage.reminderSnow(event);
         } else if (event.postback && event.postback.payload === 'delete') {
-          processMessage.reminderDelete(event);
+          processMessage.postbackDelete(event);
         } else if (event.postback && event.postback.payload) {
           processMessage.botPostback(event);
         }

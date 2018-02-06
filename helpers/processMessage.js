@@ -30,7 +30,7 @@ exports.botMessage = (event) => {
     if (response.result.metadata.intentName === 'add reminder') {
       const time = response.result.parameters.date;
       const time2 = response.result.parameters.time;
-      const time3 = Date.parse(`${time}  ${time2}`);
+      const time3 = (`${time}  ${time2}`);
       const arr = response.result.resolvedQuery.split(':');
       const postbackReminder = arr[1];
       reminder.create({
@@ -66,12 +66,18 @@ exports.botPostback = (event) => {
         const dataMoment = moment(dateTime).format('YYYY-MM-DD HH:mm');
         const dataPars = Date.parse(dataMoment);
         const dataDelayd = dataPars + 1800000;
-        result.updateAttributes({ data: dataDelayd }).then(() => {
+        result.updateAttributes({ date: dataDelayd }).then(() => {
           const message = { text: 'Your reminder is delayed.' };
           sendTextMessage(senderId, message);
         });
       }
     });
+  } else if (postbackMessage === 'deleteReminder') {
+    const userId = arr[1];
+    reminder.destroy({ where: { id: userId } }).then(() => {
+      const message = { text: 'remender delete.' };
+      sendTextMessage(senderId, message);
+    });  
   } else {
     const apiaiSession = apiAiClient.textRequest(message, { sessionId: `${senderId}` });
     apiaiSession.on('response', (response) => {
@@ -169,4 +175,35 @@ exports.deleteAll = (event) => {
     const message = { text: 'You have not reminders.' };
     sendTextMessage(senderId, message);
   });
+};
+exports.postbackDelete = (event) => {
+  const senderId = event.sender.id;
+  console.log('/////////////////////');
+  reminder.findAll({ where: { facebookId: senderId } }).then((result) => {
+    if (result.length === 0) {
+      const message = { text: 'You have not reminders.' };
+      sendTextMessage(senderId, message);
+    } else {
+      result.map((i) => {
+        const youReminders = i.dataValues.reminder;
+        const id = i.dataValues.id;
+        const result = {
+          attachment: {
+            type: 'template',
+            payload: {
+              template_type: 'list',
+              top_element_style: 'compact',
+              buttons: [
+                {
+                  title: `${youReminders}: delete`,
+                  type: 'postback',
+                  payload: `deleteReminder_${id}`,        
+                },
+              ],
+            },
+          },
+        }
+        sendTextMessage(senderId, result);
+      })}
+  })
 };
