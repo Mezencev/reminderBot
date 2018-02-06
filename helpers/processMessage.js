@@ -92,7 +92,8 @@ exports.reminderSnow = (event) => {
     } else {
       result.map((i) => {
         const youReminders = i.dataValues.reminder;
-        const message = { text: `You have the reminder:   ${youReminders}` };
+        console.log(i.dataValues.date);
+        const message = { text: `Reminder:   ${youReminders}` };
         sendTextMessage(senderId, message);
       })
     }
@@ -144,7 +145,7 @@ exports.reminderDelete = (event) => {
       result.map((i) => {
         const youReminders = i.dataValues.reminder;
         const result = {
-          text: `Are you sure you want to delete ${youReminders}` ,
+          text: `Are you sure you want to delete ${youReminders}`,
           quick_replies: [
             {
               content_type: 'text',
