@@ -23,20 +23,16 @@ const sendTextMessage = (senderId, message) => {
 };
 
 exports.botMessage = (event) => {
-  console.log('event=', event);
   const senderId = event.sender.id;
   const message = event.message.text;
   const apiaiSession = apiAiClient.textRequest(message, { sessionId: `${senderId}` });
   apiaiSession.on('response', (response) => {
     if (response.result.metadata.intentName === 'add reminder') {
       const time = response.result.parameters.date;
-      console.log('time==', response.result.parameters);
       const time2 = response.result.parameters.time;
       const time3 = Date.parse(`${time}  ${time2}`);
-      console.log('respons', response.result.resolvedQuery);
       const arr = response.result.resolvedQuery.split(':');
       const postbackReminder = arr[1];
-      console.log(arr[1]);
       reminder.create({
         reminder: postbackReminder,
         date: time3,
@@ -55,16 +51,16 @@ exports.botPostback = (event) => {
   const senderId = event.sender.id;
   const message = event.postback.payload;
   const arr = message.split('_');
-  const accept = arr[0];
-  if (accept === 'accept') {
-    const name = arr[1];
-    reminder.destroy({ where: { id: name } }).then(() => {
+  const postbackMessage = arr[0];
+  if (postbackMessage === 'accept') {
+    const userId = arr[1];
+    reminder.destroy({ where: { id: userId } }).then(() => {
       const message = { text: 'job done' };
       sendTextMessage(senderId, message);
     });
-  } else if (accept === 'snooze') {
-    const name = arr[1];
-    reminder.find({ where: { id: name } }).then((result) => {
+  } else if (postbackMessage === 'snooze') {
+    const userId = arr[1];
+    reminder.find({ where: { id: userId } }).then((result) => {
       if (result) {
         const dateTime = new Date();
         const dataMoment = moment(dateTime).format('YYYY-MM-DD HH:mm');
@@ -103,12 +99,8 @@ exports.reminderSnow = (event) => {
   });
 };
 schedule.scheduleJob('*/1 * * * *', () => {
-  //const dateTime = new Date();
- // const formatData = moment(dateTime).format('YYYY-MM-DD HH:mm'); 
-  reminder.findAll({ where: { date: { [op.gte]: new Date() } } }).then((result) => {  
+  reminder.findAll({ where: { date: { [op.lte]: new Date() } } }).then((result) => { 
     if (result[0]) {
-      console.log('///////////////');
-      console.log(result);
       result.map((i) => {
         const id = i.dataValues.id;
         const senderId = i.dataValues.facebookId;
@@ -151,23 +143,24 @@ exports.reminderDelete = (event) => {
     } else {
       result.map((i) => {
         const youReminders = i.dataValues.reminder;
-      const result = {
-      text: `Are you sure you want to delete ${youReminders}` ,
-      quick_replies: [
-      {
-        content_type: 'text',
-        title: 'Yes.',
-        payload: 'delete',
-      },
-      {
-        content_type: 'text',
-        title: 'No',
-        payload: 'no',
-       },
-     ],
-   };
-    sendTextMessage(senderId, result);
-    })}
+        const result = {
+          text: `Are you sure you want to delete ${youReminders}` ,
+          quick_replies: [
+            {
+              content_type: 'text',
+              title: 'Yes.',
+              payload: 'delete',
+            },
+            {
+              content_type: 'text',
+              title: 'No',
+              payload: 'no',
+            },
+          ],
+        };
+        sendTextMessage(senderId, result);
+      })
+    }
 })};
 exports.deleteAll = (event) => {
   const senderId = event.sender.id;
